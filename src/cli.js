@@ -267,7 +267,7 @@ ProjectManager.prototype.collectInfo = async function( options = {} ){
 		throw return_error;
 	}
 	this.project.desc = inquirer_answer;
-	inquirer_prompt = { message: 'Project license? (SPDX identifier)', default: this.project.license };
+	inquirer_prompt = { message: 'Project license? (SPDX identifier)', default: this.project.license?.spdx };
 	try{
 		inquirer_answer = await InquirerNS.input( inquirer_prompt );
 	} catch(error){
@@ -671,7 +671,7 @@ ProjectManager.prototype.processDocumentation = async function( options = {} ){
 				throw return_error;
 			}
 			if( inquirer_answer === 'mit' ){
-				this.license = 'MIT';
+				this.license.spdx = 'MIT';
 				Sh.echo(`MIT ©${datetime.getUTCFullYear()} ${this.git.username}
 	Copyright ${datetime.getUTCFullYear()} ${this.git.username}
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this 

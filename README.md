@@ -19,7 +19,7 @@
 # Contributing
 Changes are tracked in [CHANGELOG.md](CHANGELOG.md).
 # License
-undefined ©2024 Anadian
+MIT ©2024 Anadian
 
 SEE LICENSE IN [LICENSE](LICENSE)
 

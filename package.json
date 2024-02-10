@@ -1,7 +1,7 @@
 {
 	"name": "cno-project-manager",
 	"version": "0.0.0",
-	"description": "A simple project manager and script runner used for personal projects.",
+	"description": "A micropackage implementing a simple project manager and script runner used for personal projects.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Anadian/cno-project-manager.git"
@@ -100,5 +100,10 @@
 		"hjson": "^3.2.2",
 		"npm-check-updates": "^16.14.14",
 		"standard-version": "^9.5.0"
+	},
+	"dependencies": {
+		"inquirer": "^9.2.14",
+		"parse-json": "^8.1.0",
+		"shelljs": "^0.8.5"
 	}
 }
