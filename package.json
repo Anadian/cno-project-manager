@@ -7,6 +7,7 @@
 		"url": "git+https://github.com/Anadian/cno-project-manager.git"
 	},
 	"author": "Anadian",
+	"license": "MIT",
 	"main": "src/main.js",
 	"type": "module",
 	"exports": "./src/lib.js",
@@ -102,7 +103,8 @@
 		"standard-version": "^9.5.0"
 	},
 	"dependencies": {
-		"inquirer": "^9.2.14",
+		"@inquirer/prompts": "^4.0.0",
+		"application-log-winston-interface": "^3.1.0",
 		"parse-json": "^8.1.0",
 		"shelljs": "^0.8.5"
 	}

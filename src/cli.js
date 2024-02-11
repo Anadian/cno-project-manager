@@ -38,7 +38,7 @@ Documentation License: [![Creative Commons License](https://i.creativecommons.or
 	import ParseJSON from 'parse-json';
 	import * as ApplicationLogWinstonInterface from 'application-log-winston-interface';
 //# Constants
-const FILENAME = 'cno-project.js';
+const FILENAME = 'cno-project-manager.js';
 //## Errors
 
 //# Global Variables
@@ -238,7 +238,7 @@ ProjectManager.prototype.collectInfo = async function( options = {} ){
 		}
 		this.packageJSON.object = json_object;
 		this.project.name = this.packageJSON.object.name;
-		this.project.desc = this.packageJSON.object.desc;
+		this.project.desc = this.packageJSON.object.description;
 		this.license.spdx = this.packageJSON.object.license;
 	}
 	if( this.project.name == '' ){
@@ -267,7 +267,7 @@ ProjectManager.prototype.collectInfo = async function( options = {} ){
 		throw return_error;
 	}
 	this.project.desc = inquirer_answer;
-	inquirer_prompt = { message: 'Project license? (SPDX identifier)', default: this.project.license?.spdx };
+	inquirer_prompt = { message: 'Project license? (SPDX identifier)', default: this.license.spdx };
 	try{
 		inquirer_answer = await InquirerNS.input( inquirer_prompt );
 	} catch(error){
@@ -444,7 +444,7 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 						"url": `git+${this.git.origin}.git`
 				},
 				"author": this.git.username,
-				"license": this.project.license,
+				"license": this.license.spdx,
 				"main": "source/main.js",
 				"type": "module",
 				"exports": "./source/lib.js",
