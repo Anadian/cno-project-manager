@@ -36,7 +36,7 @@ Documentation License: [![Creative Commons License](https://i.creativecommons.or
 	import Sh from 'shelljs';
 	import * as InquirerNS from '@inquirer/prompts';
 	import ParseJSON from 'parse-json';
-	import * as ApplicationLogWinstonInterface from 'application-log-winston-interface';
+	import * as Logger from 'cno-logger';
 //# Constants
 const FILENAME = 'cno-project-manager.js';
 //## Errors
@@ -376,7 +376,7 @@ ProjectManager.prototype.processGit = async function( options = {} ){
 			return_error = new Error(`await InquirerNS.input threw an error: ${error}`);
 			throw return_error;
 		}
-		Sh.echo('node_modules/**\ncoverage/**\n').to('.gitignore');
+		Sh.echo('node_modules/**\ncoverage/**\ntemp/**\n').to('.gitignore');
 	}
 	inquirer_prompt = { message: `Add origin? ( current: ${this.git.origin} )`, default: true };
 	try{
@@ -445,11 +445,14 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 				},
 				"author": this.git.username,
 				"license": this.license.spdx,
-				"main": "source/main.js",
+				"main": "src/main.js",
 				"type": "module",
-				"exports": "./source/lib.js",
+				"exports": "./src/lib.js",
+				"bin": {
+					this.project.name: "./src/cli.js"
+				},
 				"engines": {
-						"node": ">=14.8.0"
+						"node": ">=18"
 				},
 				"bugs": {
 						"url": `${this.git.origin}/issues`
@@ -459,7 +462,7 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 						"libre",
 						"free",
 						"open",
-						"mit",
+						"mit"
 				]
 			}
 		}
@@ -476,13 +479,13 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 			this.packageJSON.object.scripts = {};
 		}
 		this.packageJSON.object.scripts = Object.assign( this.packageJSON.object.scripts, {
-				"test": "node --test ./source/main.test.js",
+				"test": "node --test ./src/main.test.js",
 				"coverage": "c8 pnpm test",
 				"coverage-report": "c8 report -r=text-lcov > coverage/lcov.txt",
-				"ci": "pnpm coverage && pnpm coverage-report",
-				"lint": "eslint ./source/main.js",
+				"do-ci": "pnpm coverage && pnpm coverage-report",
+				"lint": "eslint ./src/main.js",
 				"generate-docs": "scripts/generate-docs.js",
-				"update-config": "hjson -j ci/github-actions.hjson | json2yaml --preserve-key-order -o .github/workflows/ci.yml",
+				"update-config": "hjson -j ci/github-actions.hjson | json2yaml -o .github/workflows/ci.yml && git change 'chore: Updated GitHub Actions.'",
 				"update-deps": "npm-check-updates -u",
 				"release": "standard-version",
 				"publish-release": "git push --follow-tags origin main && pnpm publish",
@@ -606,7 +609,18 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 		throw return_error;
 	}
 	if( inquirer_answer === true ){
-		Sh.exec('pnpm add --save-dev c8 coveralls eslint extract-documentation-comments hjson npm-check-updates standard-version');
+		Sh.exec('pnpm add --save-dev c8 eslint extract-documentation-comments hjson npm-check-updates standard-version');
+	}
+	inquirer_prompt = { message: 'Setup GitHub Actions CI?', default: true };
+	try{
+		inquirer_answer = await InquirerNS.confirm( inquirer_prompt );
+	} catch(error){
+		return_error = new Error(`await InquirerNS.confirm threw an error: ${error}`);
+		throw return_error;
+	}
+	if( inquirer_answer === true ){
+		Sh.mkdir( '-p', 'ci' );
+		Sh.cp(
 	}
 }
 /**
