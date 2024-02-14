@@ -8,11 +8,9 @@
 	},
 	"author": "Anadian",
 	"license": "MIT",
-	"main": "src/main.js",
 	"type": "module",
-	"exports": "./src/lib.js",
 	"engines": {
-		"node": ">=14.8.0"
+		"node": ">=18"
 	},
 	"bugs": {
 		"url": "https://github.com/Anadian/cno-project-manager/issues"
@@ -25,7 +23,7 @@
 		"mit"
 	],
 	"bin": {
-		"cno-project-manager": "src/cli.js"
+		"cno-project-manager": "./src/cli.js"
 	},
 	"scripts": {
 		"test": "node --test ./source/main.test.js",
@@ -34,7 +32,7 @@
 		"ci": "pnpm coverage && pnpm coverage-report",
 		"lint": "eslint ./source/main.js",
 		"generate-docs": "scripts/generate-docs.js",
-		"update-config": "hjson -j ci/github-actions.hjson | json2yaml --preserve-key-order -o .github/workflows/ci.yml",
+		"update-config": "hjson -j ci/github-actions.hjson | json2yaml -o .github/workflows/ci.yml && git change 'chore: Updated config.'",
 		"update-deps": "npm-check-updates -u",
 		"release": "standard-version",
 		"publish-release": "git push --follow-tags origin main && pnpm publish"
@@ -95,16 +93,16 @@
 	},
 	"devDependencies": {
 		"c8": "^9.1.0",
-		"coveralls": "^3.1.1",
 		"eslint": "^8.56.0",
 		"extract-documentation-comments": "^0.4.2",
 		"hjson": "^3.2.2",
-		"npm-check-updates": "^16.14.14",
+		"npm-check-updates": "^16.14.15",
 		"standard-version": "^9.5.0"
 	},
 	"dependencies": {
 		"@inquirer/prompts": "^4.0.0",
-		"application-log-winston-interface": "^3.1.0",
+		"cno-logger": "^4.0.4",
+		"cno-package-meta": "^0.0.5",
 		"parse-json": "^8.1.0",
 		"shelljs": "^0.8.5"
 	}

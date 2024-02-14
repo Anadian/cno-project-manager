@@ -36,6 +36,7 @@ Documentation License: [![Creative Commons License](https://i.creativecommons.or
 	import Sh from 'shelljs';
 	import * as InquirerNS from '@inquirer/prompts';
 	import ParseJSON from 'parse-json';
+	import getPackageMeta from 'cno-package-meta';
 	import * as Logger from 'cno-logger';
 //# Constants
 const FILENAME = 'cno-project-manager.js';
@@ -74,7 +75,7 @@ export default function ProjectManager( options = {} ){
 	}
 	const FUNCTION_NAME = 'ProjectManager';
 	this.packageMeta = ( this.packageMeta || options.packageMeta ) ?? ( null );
-	this.logger = ( this.logger || options.logger ) ?? ( ApplicationLogWinstonInterface.nullLogger );
+	this.logger = ( this.logger || options.logger ) ?? ( Logger.nullLogger );
 	this.config = ( this.config || options.config ) ?? ( null );
 	//state
 	this.project = ( this.project || options.project ) ?? ( {} );
@@ -98,6 +99,67 @@ export default function ProjectManager( options = {} ){
 	this.node.exists = ( this.node.exists || options.node?.exists ) ?? ( false );
 	this.agenda = ( this.agenda || options.agenda ) ?? ( { git: false, node: false, documentation: false } );
 	return this;
+}
+/**
+### ProjectManager.init
+> Initialise a new ProjectManager asynchronously.
+
+#### Parametres
+| name | type | description |
+| --- | --- | --- |
+| options | object? | [Reserved] Additional run-time options. \[default: {}\] |
+
+#### Returns
+| type | description |
+| --- | --- |
+| Promise | A Promise which resolves to a ProjectManager instance. |
+
+#### Throws
+| code | type | condition |
+| --- | --- | --- |
+| 'ERR_INVALID_ARG_TYPE' | TypeError | Thrown if a given argument isn't of the correct type. |
+
+#### History
+| version | change |
+| --- | --- |
+| 0.0.1 | WIP |
+*/
+ProjectManager.init = async function( options = {} ){
+	const FUNCTION_NAME = 'ProjectManager.init';
+	//Variables
+	var arguments_array = Array.from(arguments);
+	var _return;
+	var return_error = null;
+	//this.logger.log({file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `received: ${arguments_array}`});
+	//Parametre checks
+	if( typeof(options) !== 'object' ){
+		return_error = new TypeError('Param "options" is not object?.');
+		return_error.code = 'ERR_INVALID_ARG_TYPE';
+		throw return_error;
+	}
+
+	//Function
+	
+	_return = getPackageMeta( options.meta ).then(
+		( package_meta ) => {
+			var logger = null;
+			try{
+				logger = Logger.initWinstonLogger( 'debug.log', package_meta.paths.log, 'info' );
+			} catch(error){
+				return_error = new Error(`initWinstonLogger threw an error: ${error}`);
+				throw return_error;
+			}
+			_return = new ProjectManager( { packageMeta: package_meta, logger: logger, ...options } );
+			return _return;
+		},
+		( error ) => {
+			return_error = new Error(`getPackageMeta threw an error: ${error}`);
+			throw return_error;
+		}
+	);
+	//Return
+	//this.logger.log({file: FILENAME, function: FUNCTION_NAME, level: 'debug', message: `returned: ${_return}`});
+	return _return;
 }
 /**
 ### ProjectManager.prototype.promptProjectDirectory
@@ -445,11 +507,9 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 				},
 				"author": this.git.username,
 				"license": this.license.spdx,
-				"main": "src/main.js",
 				"type": "module",
-				"exports": "./src/lib.js",
-				"bin": {
-					this.project.name: "./src/cli.js"
+				"exports": {
+					".": "./src/lib.js"
 				},
 				"engines": {
 						"node": ">=18"
@@ -591,6 +651,17 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 			]
 		} );
 	}
+	inquirer_prompt = { message: 'Add bin?', default: true };
+	try{
+		inquirer_answer = await InquirerNS.confirm( inquirer_prompt );
+	} catch(error){
+		return_error = new Error(`await InquirerNS.confirm threw an error: ${error}`);
+		throw return_error;
+	}
+	if( inquirer_answer === true ){
+		this.packageJSON.object['bin'] = {};
+		this.packageJSON.object.bin[this.packageJSON.object.name] = './src/cli.js';
+	}
 	inquirer_prompt = { message: 'Save new package.json?', default: true };
 	try{
 		inquirer_answer = await InquirerNS.confirm( inquirer_prompt );
@@ -620,7 +691,7 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 	}
 	if( inquirer_answer === true ){
 		Sh.mkdir( '-p', 'ci' );
-		Sh.cp(
+		Sh.cp( PathNS.join( this.packageMeta.paths.packageDirectory, 'res/github-actions.hjson' ), 'ci/github-actions.hjson' );
 	}
 }
 /**
@@ -747,7 +818,8 @@ This project's documentation is licensed under a [Creative Commons Attribution-S
 async function main_Async( options = {} ){
 	console.log( process.argv );
 	var return_error = null;
-	var project_manager = new ProjectManager( { 
+	var project_manager = await ProjectManager.init( {
+		meta: import.meta,
 		project: {
 			directory: process.argv[2],
 			name: process.argv[3],
