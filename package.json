@@ -101,8 +101,8 @@
 	},
 	"dependencies": {
 		"@inquirer/prompts": "^4.0.0",
-		"cno-logger": "^4.0.4",
-		"cno-package-meta": "^0.0.5",
+		"cno-logger": "^4.0.5",
+		"cno-package-meta": "^0.1.0",
 		"parse-json": "^8.1.0",
 		"shelljs": "^0.8.5"
 	}

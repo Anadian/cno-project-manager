@@ -9,11 +9,11 @@ dependencies:
     specifier: ^4.0.0
     version: 4.0.0
   cno-logger:
-    specifier: ^4.0.4
-    version: 4.0.4
+    specifier: ^4.0.5
+    version: 4.0.5
   cno-package-meta:
-    specifier: ^0.0.5
-    version: 0.0.5
+    specifier: ^0.1.0
+    version: 0.1.0
   parse-json:
     specifier: ^8.1.0
     version: 8.1.0
@@ -927,16 +927,16 @@ packages:
       wrap-ansi: 7.0.0
     dev: true
 
-  /cno-logger@4.0.4:
-    resolution: {integrity: sha512-DyMXed4ePN+EAefebXOj0LJZczbqqjPd0UZssSMLGMHmDvLsLaa9xUilusxe81K/hpZteqSIC3/btpZy2IKdGA==}
+  /cno-logger@4.0.5:
+    resolution: {integrity: sha512-VXiglplRJGs3KjLLrBwZTyO3sKuRKQ/gabGuauc1Qch3W31vDoZ5tTFwMth/eey9FoYP7zgMrz1L7fVBiOiDNA==}
     engines: {node: '>=18'}
     dependencies:
       logform: 2.6.0
       winston: 3.11.0
     dev: false
 
-  /cno-package-meta@0.0.5:
-    resolution: {integrity: sha512-2YkL9o91a35SAuZgoJSbSQiAXywT1WqaTSV7bTdVK34n5HNaKDMLjkcWVAtDhNB+eSPVNEsp0eTH8YrUcC+EtQ==}
+  /cno-package-meta@0.1.0:
+    resolution: {integrity: sha512-/JoNGy/9zWzheWN8u1j56forc3cGH+phqnk1/ZgexrlpBn4ENrFQqXUO3JsE8uIeeX0fT3UP0OeJuP+i8STgJA==}
     engines: {node: '>=18'}
     dependencies:
       env-paths: 3.0.0
