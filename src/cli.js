@@ -354,11 +354,11 @@ ProjectManager.prototype.collectInfo = async function( options = {} ){
 		}
 		var match = Sh.exec('git remote show origin').stdout.match( /Fetch URL: (.*)/ );
 		if( match != null ){
-			console.log(`${this.git.origin} | ${match[1]} | https://github.com/${this.git.username}/${this.project.name}`);
 			this.git.origin = ( this.git.origin || match[1] ) ?? `https://github.com/${this.git.username}/${this.project.name}`;
 		} else{
 			this.git.origin = `https://github.com/${this.git.username}/${this.project.name}`;
 		}
+		console.log(`${this.git.origin} | https://github.com/${this.git.username}/${this.project.name}`);
 		inquirer_prompt = { message: 'Git Origin URL?', default: this.git.origin };
 		try{
 			inquirer_answer = await InquirerNS.input( inquirer_prompt );
