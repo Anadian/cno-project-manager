@@ -340,33 +340,18 @@ ProjectManager.prototype.collectInfo = async function( options = {} ){
 	if( Sh.test( '-f', 'LICENSE' ) === true ){
 		this.license.exists = true;
 	}
-	if( Sh.test( '-d', '.git' ) === true ){
-		this.git.initialised = true;
-		if( this.git.username == '' ){
-			this.git.username = Sh.exec('git config --get user.name').stdout.trimEnd();
-			inquirer_prompt = { message: 'GitHub username?', default: this.git.username };
-			try{
-				inquirer_answer = await InquirerNS.input( inquirer_prompt );
-			} catch(error){
-				return_error = new Error(`await InquirerNS.input threw an error: ${error}`);
-				throw return_error;
-			}
-		}
-		var match = Sh.exec('git remote show origin').stdout.match( /Fetch URL: (.*)/ );
-		if( match != null ){
-			this.git.origin = ( this.git.origin || match[1] ) ?? `https://github.com/${this.git.username}/${this.project.name}`;
-		} else{
-			this.git.origin = `https://github.com/${this.git.username}/${this.project.name}`;
-		}
-		console.log(`${this.git.origin} | https://github.com/${this.git.username}/${this.project.name}`);
-		inquirer_prompt = { message: 'Git Origin URL?', default: this.git.origin };
+	if( this.git.username == '' ){
+		this.git.username = Sh.exec('git config --get user.name').stdout.trimEnd();
+		inquirer_prompt = { message: 'GitHub username?', default: this.git.username };
 		try{
 			inquirer_answer = await InquirerNS.input( inquirer_prompt );
 		} catch(error){
 			return_error = new Error(`await InquirerNS.input threw an error: ${error}`);
 			throw return_error;
 		}
-		this.git.origin = inquirer_answer;
+	}
+	if( Sh.test( '-d', '.git' ) === true ){
+		this.git.initialised = true;
 	}
 	if( Sh.test( '-f', '.gitignore' ) === true ){
 		this.git.gitignore = true;
@@ -440,6 +425,21 @@ ProjectManager.prototype.processGit = async function( options = {} ){
 		}
 		Sh.echo('node_modules/**\ncoverage/**\ntemp/**\n').to('.gitignore');
 	}
+	var match = Sh.exec('git remote show origin').stdout.match( /Fetch URL: (.+)/ );
+	if( match != null ){
+		this.git.origin ??= match[1] ?? `https://github.com/${this.git.username}/${this.project.name}`;
+	} else{
+		this.git.origin = `https://github.com/${this.git.username}/${this.project.name}`;
+	}
+	console.log(`${this.git.origin} | https://github.com/${this.git.username}/${this.project.name}`);
+	inquirer_prompt = { message: 'Git Origin URL?', default: this.git.origin };
+	try{
+		inquirer_answer = await InquirerNS.input( inquirer_prompt );
+	} catch(error){
+		return_error = new Error(`await InquirerNS.input threw an error: ${error}`);
+		throw return_error;
+	}
+	this.git.origin = inquirer_answer;
 	inquirer_prompt = { message: `Add origin? ( current: ${this.git.origin} )`, default: true };
 	try{
 		inquirer_answer = await InquirerNS.confirm( inquirer_prompt );
@@ -539,12 +539,12 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 			this.packageJSON.object.scripts = {};
 		}
 		this.packageJSON.object.scripts = Object.assign( this.packageJSON.object.scripts, {
-				"test": "node --test ./src/main.test.js",
+				"test": "node --test ./src/lib.test.js",
 				"coverage": "c8 pnpm test",
 				"coverage-report": "c8 report -r=text-lcov > coverage/lcov.txt",
 				"do-ci": "pnpm coverage && pnpm coverage-report",
 				"lint": "eslint ./src/main.js",
-				"generate-docs": "scripts/generate-docs.js",
+				"generate-docs": "extract-documentation-comments -I src/lib.js -O API.md",
 				"update-config": "hjson -j ci/github-actions.hjson | json2yaml -o .github/workflows/ci.yml && git change 'chore: Updated GitHub Actions.'",
 				"update-deps": "npm-check-updates -u",
 				"release": "standard-version",
@@ -692,6 +692,7 @@ ProjectManager.prototype.processNode = async function( options = {} ){
 	if( inquirer_answer === true ){
 		Sh.mkdir( '-p', 'ci' );
 		Sh.cp( PathNS.join( this.packageMeta.paths.packageDirectory, 'res/github-actions.hjson' ), 'ci/github-actions.hjson' );
+		Sh.mkdir( '-p', '.github/workflows' );
 	}
 }
 /**
@@ -800,6 +801,18 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`).to('LICENSE');
 - [Contributing](#Contributing)
 - [License](#License)
 # Background
+Available on the [npm registry](https://www.npmjs.com/package/${this.project.name}) as \`${this.project.name}\`. Add it to a project using [pnpm](https://pnpm.io/cli/add):
+\`\`\`sh
+pnpm add --save cno-read-by-block
+\`\`\`
+It can, of course, also be installed by [npm](https://docs.npmjs.com/cli/v8/commands/npm-install) or [yarn](https://yarnpkg.com/getting-started/usage) using the normal methods.
+# Usage
+\`\`\`js
+import Namespace from '${this.project.name}'; // Default export is a full "namespace".
+import { OneFunction } from '${this.project.name}'; // To just export a single function.
+\`\`\`
+# API
+See [API.md](API.md) for full API. 
 # Install
 # Usage
 # API
